@@ -1,4 +1,4 @@
-const C="english-v1";
+const C="english-v4";
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(self.clients.claim())});
 self.addEventListener("fetch",e=>{
