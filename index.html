@@ -413,7 +413,7 @@ function dict(s){
 app.innerHTML=hdr("Диктант")+'<div class="bar"><i style="width:'+Math.round(LS.p/LS.q.length*100)+'%"></i></div><div class="card"><div class="kick">✍️ Диктант</div><div class="q">Послушай и напиши по-английски</div><div class="row"><button class="btn" id="d1">🔊 Слушать</button><button class="btn ghost" id="d2">🐢 Медленно</button></div><div id="dm"></div><input type="text" id="di" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-top:12px" aria-label="Ответ" placeholder="Пиши здесь…"><div class="row" style="margin-top:10px"><button class="btn" id="dk">Проверить</button>'+(st.hint!==false?'<button class="btn ghost" id="dh">💡 Первые буквы</button>':'')+'</div><div id="fb"></div></div>';
 var dh=document.getElementById("dh");if(dh)dh.onclick=function(){document.getElementById("dm").innerHTML='<div class="mask">'+esc(s[1].replace(/[A-Za-z]+/g,function(w){return w[0]+w.slice(1).replace(/./g,"_")}))+'</div>';dh.remove();document.getElementById("di").focus()};
 var inp=document.getElementById("di");document.getElementById("d1").onclick=function(){say(s[1])};document.getElementById("d2").onclick=function(){say(s[1],.55)};say(s[1]);
-var nw=function(t){return t.toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z' ]+/g," ").replace(/\s+/g," ").trim()};
+var nw=function(t){return canon(t.toLowerCase().replace(/[’‘`´]/g,"'").replace(/[^a-z' ]+/g," ").replace(/\s+/g," ").trim())};
 var go=function(){if(inp.disabled)return;var ok=nw(inp.value)===nw(s[1]);if(!ok)LS.err++;snd(ok);inp.disabled=true;document.getElementById("dk").disabled=true;var dh2=document.getElementById("dh");if(dh2)dh2.remove();document.getElementById("fb").innerHTML='<div class="fb'+(ok?'':' bad')+'">'+fbCat(ok)+'<div class="fbtx"><b>'+(ok?'Верно!':'Не совсем.')+'</b> '+esc(s[1])+' — '+esc(s[2])+'</div></div><div class="row" style="margin-top:10px"><button class="btn" id="go">Дальше</button></div>';var g=document.getElementById("go");g.focus();g.onclick=function(){LS.p++;step()}};
 document.getElementById("dk").onclick=go;inp.onkeydown=function(e){if(e.key==="Enter")go()};
 document.getElementById("back").onclick=function(){level(LS.i)}}
@@ -696,7 +696,12 @@ rc=mic(true,function(t){tx.value=base+t},function(m){co.textContent=m});
 if(rc)rc.onend=function(){on=false;mk.textContent="🎤 Начать"};else{on=false;mk.textContent="🎤 Начать"}}}
 function sh(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-function norm(s){return s.toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").trim()}
+function norm(s){return canon(s.toLowerCase().replace(/[’‘`´]/g,"'").replace(/[.!?,]+$/,"").replace(/\s+/g," ").trim())}
+/* Сокращения считаем равными полной форме: I'm = I am, don't = do not, can't = cannot.
+   Без апострофа (как часто пишут с телефона) — только однозначные: im, dont, cant… (its, were, well — это другие слова) */
+var CX={"i'm":"i am","you're":"you are","we're":"we are","they're":"they are","he's":"he is","she's":"she is","it's":"it is","that's":"that is","what's":"what is","where's":"where is","there's":"there is","here's":"here is","who's":"who is","how's":"how is","let's":"let us","can't":"can not","cannot":"can not","won't":"will not","shan't":"shall not",
+im:"i am",youre:"you are",theyre:"they are",dont:"do not",doesnt:"does not",didnt:"did not",isnt:"is not",arent:"are not",wasnt:"was not",werent:"were not",cant:"can not",couldnt:"could not",shouldnt:"should not",wouldnt:"would not",havent:"have not",hasnt:"has not",hadnt:"had not",mustnt:"must not",neednt:"need not",thats:"that is",whats:"what is"};
+function canon(t){return t.split(" ").map(function(w){if(CX.hasOwnProperty(w))return CX[w];if(/n't$/.test(w))return w.slice(0,-3)+" not";return w.replace(/'re$/," are").replace(/'ve$/," have").replace(/'ll$/," will").replace(/'d$/," would")}).join(" ")}
 function nextNode(){var a=pathNodes(),L=st.l||{},last=-1,k;a.forEach(function(n,q){if(L[n[0]+"."+n[1]])last=q});for(k=last+1;k<a.length;k++)if(!L[a[k][0]+"."+a[k][1]])return a[k];for(k=0;k<a.length;k++)if(!L[a[k][0]+"."+a[k][1]])return a[k];return null}
 function lvVars(i){return '--lc:'+LV[i].c[0]+';--lc2:'+LV[i].c[1]}
 function home(){
